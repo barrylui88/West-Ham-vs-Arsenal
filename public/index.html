@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -187,7 +187,7 @@
   const wrapper = document.getElementById('teams-wrapper');
   let placed = false;
   let dodgeCount = 0;
-  const hideAfter = 2 + Math.floor(Math.random() * 3); // 2, 3, or 4
+  const hideAfter = 8;
 
   function placeOverGhost() {
     const ghost = document.querySelector('.btn-arsenal-ghost');
@@ -201,19 +201,23 @@
   window.addEventListener('load', placeOverGhost);
   setTimeout(placeOverGhost, 100);
 
+  let hidden = false;
+
   function hideUnderWestHam() {
+    hidden = true;
+    btn.style.pointerEvents = 'none';
     const westham = document.querySelector('.btn-westham');
     const whamRect = westham.getBoundingClientRect();
     const wrapRect = wrapper.getBoundingClientRect();
-    btn.style.transition = 'left 0.5s ease, top 0.5s ease, opacity 0.5s ease';
+    btn.style.transition = 'left 0.5s ease, top 0.5s ease, opacity 0.3s ease 0.3s';
     btn.style.left = (whamRect.left - wrapRect.left) + 'px';
     btn.style.top  = (whamRect.top  - wrapRect.top)  + 'px';
-    setTimeout(() => btn.classList.add('hiding'), 50);
+    btn.style.opacity = '0';
   }
 
   function dodgeBtn() {
+    if (hidden) return;
     if (!placed) placeOverGhost();
-    if (btn.classList.contains('hiding')) return;
 
     dodgeCount++;
 
@@ -222,6 +226,7 @@
       return;
     }
 
+    btn.style.transition = 'left 0.08s ease, top 0.08s ease';
     const wrapRect = wrapper.getBoundingClientRect();
     const btnW = btn.offsetWidth;
     const btnH = btn.offsetHeight;
