@@ -143,8 +143,8 @@
 <body>
 
 <div class="container" id="main">
-  <p class="subtitle">Premier League · Today</p>
-  <p class="title" id="main-title">Who wins today?</p>
+  <p class="subtitle" id="subtitle">Premier League · <span id="when-label"></span></p>
+  <p class="title" id="main-title">Who wins <span id="when-word"></span>?</p>
 
   <div class="teams-wrapper" id="teams-wrapper">
     <div class="teams-static">
@@ -165,6 +165,17 @@
 </div>
 
 <script>
+  // Match date: Sunday 10 May 2025
+  const MATCH = new Date(2025, 4, 10); // month is 0-indexed
+  const now = new Date();
+  const isMatchDay = now.getFullYear() === MATCH.getFullYear()
+    && now.getMonth() === MATCH.getMonth()
+    && now.getDate() === MATCH.getDate();
+  const whenWord = isMatchDay ? 'today' : 'tomorrow';
+  const whenLabel = isMatchDay ? 'Today' : 'Tomorrow';
+  document.getElementById('when-word').textContent = whenWord;
+  document.getElementById('when-label').textContent = whenLabel;
+
   const btn = document.getElementById('arsenal-btn');
   const wrapper = document.getElementById('teams-wrapper');
   let placed = false;
@@ -208,7 +219,7 @@
     document.getElementById('teams-wrapper').style.display = 'none';
     document.getElementById('result-area').style.display = 'flex';
     document.getElementById('main-title').textContent = "You've picked...";
-    document.querySelector('.subtitle').style.display = 'none';
+    document.getElementById('subtitle').style.display = 'none';
   }
 </script>
 
