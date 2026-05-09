@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who wins today?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d0d0d;
+      font-family: 'Georgia', serif;
+      color: #f0ece4;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .title {
+      font-size: clamp(28px, 6vw, 48px);
+      font-weight: normal;
+      letter-spacing: -0.02em;
+      color: #f0ece4;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #888;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .teams-wrapper {
+      position: relative;
+      width: min(600px, 90vw);
+      min-height: 140px;
+    }
+
+    .teams-static {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      font-size: 16px;
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-westham {
+      background: #7C1C3A;
+      color: #fff;
+      transition: background 0.15s;
+    }
+
+    .btn-westham:hover {
+      background: #9B2249;
+    }
+
+    .btn-arsenal-ghost {
+      padding: 14px 32px;
+      font-size: 16px;
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      visibility: hidden;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .btn-arsenal {
+      background: #EF0107;
+      color: #fff;
+      position: absolute;
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 14px 32px;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+      transition: left 0.08s ease, top 0.08s ease;
+    }
+
+    .vs {
+      font-size: 18px;
+      color: #555;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      animation: fadein 0.5s ease;
+    }
+
+    .result-emoji {
+      font-size: 56px;
+    }
+
+    .result-text {
+      font-size: 28px;
+      font-weight: normal;
+      color: #f0ece4;
+    }
+
+    .result-sub {
+      font-size: 15px;
+      color: #888;
+      font-family: 'Helvetica Neue', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="main">
+  <p class="subtitle">Premier League · Today</p>
+  <p class="title" id="main-title">Who wins today?</p>
+
+  <div class="teams-wrapper" id="teams-wrapper">
+    <div class="teams-static">
+      <button class="btn btn-westham" onclick="pickWestHam()">⚒ West Ham</button>
+      <span class="vs">vs</span>
+      <div class="btn-arsenal-ghost">🔴 Arsenal</div>
+    </div>
+    <button class="btn-arsenal" id="arsenal-btn"
+      onmouseenter="dodgeBtn()"
+      ontouchstart="dodgeBtn()">🔴 Arsenal</button>
+  </div>
+
+  <div class="result" id="result-area">
+    <div class="result-emoji">⚒️🎉</div>
+    <div class="result-text">Good choice.</div>
+    <div class="result-sub">West Ham it is. The right answer.</div>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('arsenal-btn');
+  const wrapper = document.getElementById('teams-wrapper');
+  let placed = false;
+
+  function placeOverGhost() {
+    const ghost = document.querySelector('.btn-arsenal-ghost');
+    const ghostRect = ghost.getBoundingClientRect();
+    const wrapRect = wrapper.getBoundingClientRect();
+    btn.style.left = (ghostRect.left - wrapRect.left) + 'px';
+    btn.style.top  = (ghostRect.top  - wrapRect.top)  + 'px';
+    placed = true;
+  }
+
+  window.addEventListener('load', placeOverGhost);
+  setTimeout(placeOverGhost, 100);
+
+  function dodgeBtn() {
+    if (!placed) placeOverGhost();
+    const wrapRect = wrapper.getBoundingClientRect();
+    const btnW = btn.offsetWidth;
+    const btnH = btn.offsetHeight;
+    const maxX = wrapRect.width  - btnW;
+    const maxY = wrapRect.height - btnH;
+
+    const curX = parseFloat(btn.style.left) || 0;
+    const curY = parseFloat(btn.style.top)  || 0;
+
+    const candidates = [];
+    for (let i = 0; i < 16; i++) {
+      const nx = Math.random() * maxX;
+      const ny = Math.random() * maxY;
+      const dist = Math.sqrt((nx - curX) ** 2 + (ny - curY) ** 2);
+      candidates.push({ nx, ny, dist });
+    }
+    candidates.sort((a, b) => b.dist - a.dist);
+    btn.style.left = candidates[0].nx + 'px';
+    btn.style.top  = candidates[0].ny + 'px';
+  }
+
+  function pickWestHam() {
+    document.getElementById('teams-wrapper').style.display = 'none';
+    document.getElementById('result-area').style.display = 'flex';
+    document.getElementById('main-title').textContent = "You've picked...";
+    document.querySelector('.subtitle').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
